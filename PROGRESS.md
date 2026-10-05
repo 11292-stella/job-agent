@@ -1,8 +1,9 @@
 # PROGRESS – Job Application Agent
 
-> Agente AI **locale** che mi aiuta a candidarmi: legge un'offerta o la pagina "Lavora con noi" di un'azienda, valuta quanto il mio profilo è adatto, scrive la mail o il testo per il modulo **su misura**, e prepara tutto (bozza Gmail o modulo compilato).
+> Agente AI **locale** che mi aiuta a candidarmi: legge un'offerta o la pagina "Lavora con noi" di un'azienda, valuta quanto il mio profilo è adatto, prepara la mail o il testo per il modulo **su misura**, e prepara tutto (bozza Gmail o modulo compilato).
 > **L'invio finale lo faccio sempre io.**
 
+Repository: https://github.com/11292-stella/job-agent
 Ultimo aggiornamento: 5 ottobre 2026
 
 ---
@@ -26,83 +27,87 @@ L'obiettivo è **automatizzare i punti 1-5**, tenendo per me solo il controllo f
 
 | Tema | Decisione | Motivo |
 |---|---|---|
-| Modello AI | **Ollama in locale** | gratis, nessuna API key, i dati restano sul mio PC |
-| Come parla con l'AI | **API HTTP di Ollama** (libreria `ollama` per Python) | niente automazione della chat web: è fragile e non permessa |
-| Output dell'AI | **JSON strutturato** (con uno schema) | il programma lo legge senza interpretare testo libero |
-| Deploy | **Nessuno**: gira in locale | è un progetto da portfolio, basta il codice + video demo |
+| Modello AI | **Ollama in locale** con **`qwen2.5:3b`** | gratis, nessuna API key, i dati restano sul mio PC; il 3b sta tutto nella GPU (RTX 2050, 4 GB) |
+| Modello 7b | **Scartato** | non entra nei 4 GB della GPU → troppo lento |
+| Come parla con l'AI | **API di Ollama** (libreria `ollama` per Python) | niente automazione della chat web: fragile e non permessa |
+| Divisione dei compiti | **Python** fa tutto ciò che deve essere esatto, **l'AI** solo scelta + 1 frase | il 3b inventava competenze, cambiava lingua e scriveva frasi arroganti |
+| Frasi sulla mia esperienza | **Scritte da me** in `agent/frasi.py` | vere e umili per costruzione; l'AI non le può modificare |
+| Output dell'AI | **JSON con schema** (Pydantic), con `Literal` per le scelte chiuse | l'AI può scegliere solo tra le mie competenze reali |
+| Controlli di qualità | `agent/controlli.py` + **ciclo di correzione** (max 3 tentativi) | se l'AI sbaglia le rimando gli errori; se non si corregge → frase di riserva |
+| Deploy | **Nessuno**: gira in locale | è un progetto da portfolio: basta codice + video demo |
 | Invio mail | Solo **bozze in Gmail** (Gmail API) | l'invio automatico sembra spam e rischia di bloccare l'account |
-| Moduli web | **Playwright** compila i campi e **si ferma prima di "Invia"** | controllo umano; i captcha non si aggirano |
+| Moduli web | **Playwright** compila e **si ferma prima di "Invia"** | controllo umano; i captcha non si aggirano |
 | LinkedIn | **Niente scraping** | vietato dalle condizioni d'uso |
 | Memoria | **Database** con le aziende già contattate | evita doppioni (es. Zupit!) |
 | Approccio | **Human-in-the-loop**: l'agente prepara, io approvo | qualità > quantità |
 
 ---
 
-## 3. Architettura
+## 3. Architettura (attuale)
 
 ```
-┌──────────────────────────┐
-│ [1] ORCHESTRATORE        │  Python: prende la prossima azienda dal DB
-└────────────┬─────────────┘
-             ▼
-┌──────────────────────────┐
-│ [2] CERVELLO AI (Ollama) │  input: testo annuncio/pagina + profilo + regole
-│                          │  output: JSON { punteggio, canale, testo, ... }
-└────────────┬─────────────┘
-             ▼
-┌──────────────────────────┐
-│ [3] ESECUTORE            │  email → bozza Gmail
-│                          │  form  → Playwright compila e SI FERMA
-└────────────┬─────────────┘
-             ▼
-┌──────────────────────────┐
-│ [4] TRACKER              │  DB + (più avanti) dashboard Django
-│                          │  stato: trovata → valutata → pronta → inviata → risposta
-└──────────────────────────┘
-        ↺ ricomincia con l'azienda successiva
+ANNUNCIO (file .txt con righe "Azienda:" e "Posizione:" in cima)
+   │
+   ▼
+[Python] competenze.py → punti forti / cosa manca / punteggio      (deterministico, zero allucinazioni)
+[Python] brain.py      → azienda, posizione, canale, email, oggetto
+   │
+   ▼
+[AI qwen2.5:3b]  1) SCEGLIE le 3 competenze più rilevanti (solo da lista chiusa)
+                 2) scrive UNA frase sull'azienda
+   │
+   ▼
+[Python] controlli.py  → frasi vietate, tecnologie inventate, lunghezza
+         ↺ se ci sono problemi: rimando gli errori all'AI (max 3 tentativi), poi frase di riserva
+   │
+   ▼
+[Python] scheletro della mail + MIE frasi (frasi.py) → mail finale
+   │
+   ▼
+(prossime fasi) bozza Gmail / modulo Playwright → tracker
 ```
 
-### Esempio di output del cervello AI
+### Esempio di risultato reale (annuncio Python Developer – BSDsoftware, 11,9 s)
 
-```json
-{
-  "azienda": "BSDsoftware",
-  "posizione": "Python Developer",
-  "punteggio": 78,
-  "punti_forti": ["Python con Playwright e pytest", "Django", "Docker", "React"],
-  "cosa_manca": ["FastAPI"],
-  "canale": "form",
-  "oggetto_email": null,
-  "testo": "Buongiorno, vi scrivo per la posizione di Python Developer...",
-  "note_per_me": "Smart working completo possibile. Il modulo chiede 'profilo di interesse'."
-}
+```
+Buongiorno,
+
+vi scrivo per candidarmi alla posizione di Python Developer. Ho usato Python soprattutto per il testing:
+in Sellogic, con Playwright e pytest, ho scritto circa 70 test E2E e 226 test API. Uso Docker e Docker
+Compose nelle pipeline di test dei miei progetti. In Sellogic ho configurato le pipeline di test su GitLab CI.
+
+Mi interessa lavorare su progetti in ambito web, AI e sviluppo software custom, e il fatto che siate
+aperti allo smart working.
+
+Sono disponibile da subito e disponibile al trasferimento. Nel mio portfolio trovate progetti, video e
+report dei test: https://portfolio-loading.vercel.app/
+Allego il mio CV.
+...
+🔁 Tentativo 1: Frase vietata: "innovativ"   ← bloccata e corretta al tentativo 2
 ```
 
-### Esempio di chiamata a Ollama (anteprima)
+### Schema chiuso per la scelta delle competenze
 
 ```python
-import ollama
-
-risposta = ollama.chat(
-    model="qwen2.5:7b",
-    messages=[
-        {"role": "system", "content": "Sei un assistente che valuta offerte di lavoro..."},
-        {"role": "user", "content": f"PROFILO:\n{profilo}\n\nANNUNCIO:\n{annuncio}"},
-    ],
-    format=SchemaValutazione.model_json_schema(),  # forza l'output in JSON valido
-)
-valutazione = SchemaValutazione.model_validate_json(risposta.message.content)
+def schema_scelta(nomi: list[str]) -> type[BaseModel]:
+    NomeCompetenza = Literal[tuple(nomi)]   # es. Literal["Python", "Django", "Docker"]
+    return create_model(
+        "Scelta",
+        competenze=(list[NomeCompetenza], Field(min_length=1, max_length=3)),
+        frase_azienda=(str, Field(description="Una frase su cosa interessa dell'azienda")),
+    )
 ```
 
 ---
 
 ## 4. Stack
 
-| Parte | Tecnologia | La conosco già? |
+| Parte | Tecnologia | La conoscevo già? |
 |---|---|---|
-| Linguaggio | Python 3 | ✅ |
-| Modello AI | Ollama + modello `qwen2.5:7b` (o `llama3.1:8b`) | 🆕 da imparare |
-| Validazione JSON | Pydantic | 🆕 semplice |
+| Linguaggio | Python 3.14 | ✅ |
+| Modello AI | Ollama + **qwen2.5:3b** | 🆕 imparato in questo progetto |
+| Validazione JSON | Pydantic (`BaseModel`, `Field`, `create_model`, `Literal`) | 🆕 imparato in questo progetto |
+| Riconoscimento competenze | `re` (regex a parola intera) + `dataclass` | ✅ |
 | Lettura pagine web | requests + BeautifulSoup | ✅ (Job Aggregator) |
 | Moduli web | Playwright (Python) | ✅ (Sellogic) |
 | Bozze email | Gmail API | ✅ (Job Aggregator) |
@@ -111,56 +116,57 @@ valutazione = SchemaValutazione.model_validate_json(risposta.message.content)
 | Test | pytest | ✅ |
 | CI | GitHub Actions | ✅ |
 
-> Nota hardware: un modello da 7-8 miliardi di parametri richiede circa **8 GB di RAM libera**. Se il PC fatica, si può usare un modello più piccolo (es. `qwen2.5:3b`).
-
 ---
 
-## 5. Struttura delle cartelle (prevista)
+## 5. Struttura delle cartelle
 
 ```
 job-agent/
 ├── PROGRESS.md
-├── README.md
-├── requirements.txt
-├── .env.example
+├── requirements.txt         # ollama, pydantic (salvato in UTF-8!)
+├── .gitignore
 ├── data/
-│   ├── profilo.md          # il mio profilo in testo semplice (dal CV)
-│   └── regole_stile.md     # come voglio che scriva: tono umile, niente competenze inventate...
+│   ├── profilo.md           # il mio profilo, con la sezione "Cosa NON ho"
+│   └── regole_stile.md      # tono umile, niente frasi fatte, struttura della mail
+├── annunci/
+│   └── bsd_python.txt       # annuncio di prova
 ├── agent/
 │   ├── __init__.py
-│   ├── schemas.py          # modelli Pydantic dell'output AI
-│   ├── brain.py            # [2] chiamate a Ollama
-│   ├── fetcher.py          # scarica e pulisce il testo di una pagina
-│   ├── gmail_drafts.py     # [3] crea bozze Gmail
-│   ├── form_filler.py      # [3] Playwright: compila e si ferma
-│   ├── db.py               # [4] tracker
-│   └── main.py             # [1] orchestratore
-└── tests/
-    ├── test_schemas.py
-    ├── test_brain.py
-    └── fixtures/           # annunci di esempio salvati in locale
+│   ├── schemas.py           # Valutazione (output finale)
+│   ├── competenze.py        # dizionario competenze (le ho / non le ho) + regex
+│   ├── frasi.py             # le MIE frasi, una per competenza
+│   ├── controlli.py         # frasi vietate, tecnologie inventate, lunghezza
+│   └── brain.py             # orchestrazione: Python + AI + controlli + scheletro mail
+└── tests/                   # (fase 6)
+```
+
+Comando:
+```powershell
+python -m agent.brain annunci\bsd_python.txt
 ```
 
 ---
 
-## 6. Piano di lavoro (un pezzo alla volta)
+## 6. Piano di lavoro
 
-### Fase 0 – Preparazione
-- [ ] Creare la cartella `job-agent` e il repo Git
-- [ ] Installare Ollama e scaricare il modello
-- [ ] Primo test: far rispondere il modello da terminale
-- [ ] Ambiente virtuale Python + `requirements.txt`
+### Fase 0 – Preparazione ✅
+- [x] Cartella `job-agent` + repo Git + GitHub
+- [x] Ollama installato, modello `qwen2.5:3b` scaricato e provato
+- [x] Ambiente virtuale Python + `requirements.txt` + `.gitignore`
 
-### Fase 1 – Il cervello (cuore del progetto)
-- [ ] `data/profilo.md` e `data/regole_stile.md`
-- [ ] `agent/schemas.py`: schema Pydantic della valutazione
-- [ ] `agent/brain.py`: funzione `valuta(annuncio) -> Valutazione`
-- [ ] Prova a mano con 3 annunci veri (es. BSDsoftware, Vanguard, CGM)
-- [ ] **Già utile così**: incollo un annuncio e ottengo punteggio + testo
+### Fase 1 – Il cervello ✅
+- [x] `data/profilo.md` e `data/regole_stile.md`
+- [x] `agent/schemas.py`
+- [x] `agent/competenze.py`: confronto deterministico annuncio ↔ profilo
+- [x] `agent/controlli.py`: controlli di qualità sul testo
+- [x] `agent/frasi.py`: le mie frasi
+- [x] `agent/brain.py`: l'AI sceglie 3 competenze + scrive 1 frase, ciclo di correzione, scheletro mail
+- [x] Prova con un annuncio vero (BSDsoftware) → mail vera e umile in ~12 s
 
 ### Fase 2 – Lettura delle pagine
 - [ ] `agent/fetcher.py`: da URL a testo pulito
 - [ ] Riconoscere email di candidatura e presenza di un modulo
+- [ ] Ricavare azienda e posizione senza scriverle a mano nel file
 
 ### Fase 3 – Esecutore
 - [ ] `agent/gmail_drafts.py`: bozza Gmail con CV allegato
@@ -174,8 +180,9 @@ job-agent/
 - [ ] Django: lista aziende, punteggi, stati, link alla bozza
 
 ### Fase 6 – Qualità (la mia firma da QA)
-- [ ] Test pytest su schemi e parsing
-- [ ] Test sull'AI con annunci salvati: il JSON è valido? Il testo **non inventa competenze** che non ho? Rispetta le regole di stile?
+- [ ] pytest su `competenze.py` (es. "Java" non deve trovare "JavaScript")
+- [ ] pytest su `controlli.py` (casi negativi: frasi vietate, tecnologie inventate)
+- [ ] Test sull'AI con annunci salvati: JSON valido, scelte solo dalla lista, nessuna frase vietata
 - [ ] GitHub Actions per i test che non richiedono Ollama
 - [ ] README con video demo per il portfolio
 
@@ -184,8 +191,8 @@ job-agent/
 ## 7. Regole che l'agente deve rispettare
 
 1. **Mai inventare** competenze, anni di esperienza o titoli di studio.
-2. Se mi manca qualcosa di richiesto, dirlo nel campo `cosa_manca`, non nasconderlo.
-3. Tono **semplice e umile**, niente frasi arroganti.
+2. Se mi manca qualcosa di richiesto, segnarlo in `cosa_manca`, non nasconderlo.
+3. Tono **semplice e umile**: niente "esperta", "padronanza", "valore aggiunto", "innovativo"...
 4. Per il trasferimento basta "disponibile al trasferimento".
 5. Mai inviare: solo bozze e moduli compilati fermi prima dell'invio.
 6. Non contattare due volte la stessa azienda senza chiedermelo.
@@ -196,4 +203,28 @@ job-agent/
 
 | Data | Cosa ho fatto | Problemi / note |
 |---|---|---|
-| 05/10/2026 | Idea, decisioni e architettura (questo file) | — |
+| 05/10/2026 | Idea, decisioni e architettura | — |
+| 05/10/2026 | Ollama + qwen2.5:3b, ambiente Python | `pip freeze > file` in PowerShell salva in UTF-16 → usare `Out-File -Encoding utf8` |
+| 05/10/2026 | Prima versione di brain.py (tutto fatto dall'AI) | Si bloccava all'infinito → aggiunto `num_predict`; poi inventava competenze, scriveva in spagnolo, frasi arroganti |
+| 05/10/2026 | Prova con qwen2.5:7b | Troppo lento (non entra nella GPU) → scartato |
+| 05/10/2026 | `competenze.py` (confronto deterministico) | Python fa il confronto annuncio/profilo: zero allucinazioni |
+| 05/10/2026 | `controlli.py` | Falso negativo: "sono conosciuta" non trovava "sono anche conosciuta" → controllo su "conosciuta per" |
+| 05/10/2026 | Scheletro mail + ciclo di correzione + esempio few-shot | Il 3b continuava a scrivere "esperta" anche dopo 3 correzioni → limite del modello |
+| 05/10/2026 | `frasi.py` + l'AI sceglie solo da lista chiusa | Mail vera e umile in ~12 s; il ciclo di correzione ha bloccato "innovativo" al 1° tentativo |
+
+---
+
+## 9. Migliorie future
+
+- [ ] Priorità tra le competenze (es. per un annuncio Python, Django prima di Docker)
+- [ ] Evitare frasi che ripetono lo stesso dato (es. "226 test API" in Python e Playwright)
+- [ ] Aggiornare profilo, CV e portfolio con questo progetto quando sarà finito
+
+---
+
+## 10. Cosa racconterò ai colloqui
+
+- Ho usato un modello AI **piccolo e locale** e ne ho scoperto i limiti facendo QA sui suoi output.
+- Ho **spostato la logica critica in Python** (confronto competenze) e lasciato all'AI solo i compiti in cui è affidabile.
+- Ho costruito **controlli automatici** e un **ciclo di correzione**, e testandoli ho trovato un falso negativo.
+- Risultato: mail **vere, umili e verificabili**, l'invio resta sempre una decisione umana.

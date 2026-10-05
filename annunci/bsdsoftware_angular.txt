@@ -1,0 +1,7 @@
+Azienda: BSDsoftware - Gruppo Maggioli
+Posizione: Front-end Angular
+Pagina: https://www.bsdsoftware.it/LavoraConNoi
+Come candidarsi: modulo sul sito / email info@bsdsoftware.it
+
+Front-end Angular (sia Remote che On-Site):
+competenze Angular e architettura Micro Front-end, NgRx, strumenti di Testing front-end (es. Jasmine, Karma).

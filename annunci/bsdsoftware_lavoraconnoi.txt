@@ -1,0 +1,97 @@
+Azienda: BSDsoftware - Gruppo Maggioli
+Posizione: Python Developer
+Pagina: https://www.bsdsoftware.it/LavoraConNoi
+Come candidarsi: modulo sul sito / email info@bsdsoftware.it
+
+Lavora con noi: offerte di lavoro per programmatori
+Se sei alla ricerca di offerte di lavoro per programmatori,
+BSDsoftware è l'opportunità perfetta per te
+. Siamo una realtà
+specializzata nello sviluppo software, sviluppo gestionali custom, siti web e app mobile
+, e siamo sempre alla ricerca di nuovi talenti che possano unirsi ai nostri team di programmazione. Sappiamo che le offerte di lavoro per sviluppatori software sono moltissime, ma noi
+crediamo di avere qualcosa di speciale da offrire
+. Continua a leggere per scoprire
+perché scegliere BSDsoftware
+.
+5 motivi per scegliere di lavorare in BSDsoftware
+Quali opportunità di crescita offre BSDsoftware agli sviluppatori?
+In BSDsoftware, ogni sviluppatore ha la possibilità di crescere e migliorare le proprie competenze nel settore informatico sia come
+developer front-end e back-end
+, sia come sviluppatore di
+app mobile e siti web
+. Lavorerai su progetti innovativi, tra cui lo
+sviluppo di gestionali custom, e-commerce, portali istituzionali, e soluzioni per il settore travel online
+. Lavorare su progetti variegati e con clienti di diversi settori ti consentirà di acquisire esperienza preziosa e di tenerti aggiornato sulle
+nuove tecnologie del mercato
+.
+Qual è il bilanciamento tra vita privata e lavoro?
+In BSDsoftware, il benessere dei dipendenti è una priorità. Sappiamo quanto sia importante mantenere un giusto
+equilibrio tra lavoro e vita privata
+. Gli orari di lavoro sono flessibili: potrai gestire il tuo tempo con maggiore autonomia, grazie alla possibilità di scegliere tra lavoro in presenza e
+smart working
+. Siamo ben organizzati nella gestione dei progetti e crediamo che
+un ambiente sereno
+, con carichi di lavoro sostenibili, sia la chiave per produrre risultati di qualità.
+Posso contare su supporto e formazione?
+Assolutamente sì. Fin dal primo giorno in BSDsoftware, sarai affiancato da un team di supporto che ti guiderà nel tuo percorso di inserimento. Abbiamo uno staff dedicato, con competenze tecniche e di
+gestione delle risorse umane
+, che è sempre pronto ad aiutarti e a supportarti. Inoltre, organizziamo
+corsi di aggiornamento
+e giornate di formazione per assicurare che tutti i nostri sviluppatori rimangano sempre al passo con le ultime novità tecnologiche.
+BSDsoftware è un buon posto per fare esperienza?
+BSDsoftware ti dà la possibilità di lavorare con
+clienti di livello nazionale e internazionale
+, partecipando a progetti complessi e strutturati che ti permetteranno di crescere non solo dal punto di vista tecnico, ma anche professionale. Lavorando con noi avrai la possibilità di collaborare in team, migliorare le tue
+soft skills
+, e potenziare la conoscenza della
+lingua inglese
+.
+Come viene considerata l'opinione degli sviluppatori in azienda?
+In BSDsoftware crediamo nel valore del feedback. Ogni anno organizziamo colloqui individuali per valutare l'andamento dell'esperienza dei nostri collaboratori,
+sia dal punto di vista professionale che personale
+. Grazie a questo approccio, riusciamo a
+comprendere le esigenze del nostro team e a migliorare costantemente
+l'ambiente di lavoro. Negli ultimi anni, i feedback ricevuti dai nostri sviluppatori hanno evidenziato un crescente livello di soddisfazione, segno che siamo sulla strada giusta per continuare a migliorare.
+Che profili stiamo cercando?
+Front-end Angular
+(sia Remote che On-Site):
+competenze Angular e architettura Micro Front-end, NgRx, strumenti di Testing front-end (es. Jasmine, Karma).
+Software Development Specialist
+(sia Remote che On-Site):
+Java, spring boot, API Rest/Soap, JDBC, Oracle PLSQL, Restful Services, Hibernate
+Senior .Net Developer
+(On-Site Cesena, Rimini, Riccione, Bologna):
+C#, .NET, .NET Core, database relazionali, competenze di tipo sistemistico/DevOps.
+Python Developer
+(sia Remote che On-Site):
+Python, React, Docker, framework web o microservizi, database relazionali, competenze di tipo sistemistico/DevOps.
+PHP Developer
+(sia Remote che On-Site):
+PHP, Wordpress, Symfony, CodeIgniter, Moodle, Laravel, MySQL/MariaDB, Docker, framework web o CMS, database relazionali, competenze di tipo sistemistico/DevOps.
+UX/UI Designer
+(On-Site Cesena, Rimini, Riccione, Bologna):
+progettazione, prototipazione e sviluppo web o mobile, Figma, User Oriented Design.
+Sviluppatore PL/SQL
+(sia Remote che On-Site):
+PL/SQL, programmazione SQL, nozioni di base sull'amministrazione di Database Oracle.
+Sei pronto a unirti al nostro team?
+Se stai cercando
+una nuova opportunità di lavoro
+come programmatore e vuoi fare la differenza in una realtà in continua crescita, contattaci e scopri di più sulle opportunità disponibili.
+BSDsoftware
+è il posto ideale per uno sviluppatore software ambizioso che vuole crescere, imparare e contribuire al successo di progetti sfidanti e stimolanti.
+Invia il tuo curriculum
+Seleziona il profilo di interesse *
+Front-end Angular
+Software Development Specialist
+Senior .Net Developer
+Python Developer
+PHP Developer
+UX/UI Designer
+Sviluppatore PL/SQL
+Allega il tuo Curriculum *
+Si accettano le condizioni della
+privacy
+.
+* Campi obbligatori
+Invia

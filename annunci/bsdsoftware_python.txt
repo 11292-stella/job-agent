@@ -1,0 +1,126 @@
+Azienda: BSDsoftware - Gruppo Maggioli
+Posizione: Python Developer
+Pagina: https://www.bsdsoftware.it/LavoraConNoi/PythonDeveloper
+Come candidarsi: modulo sul sito / email info@bsdsoftware.it
+
+Python Developer (sia Remote che On-Site):
+Python, React, Docker, framework web o microservizi, database relazionali, competenze di tipo sistemistico/DevOps.
+
+Programmatore Python: lavora in smart working oppure onsite con BSDsoftware
+In BSDsoftware crediamo che la qualità del codice nasca dalla passione per la tecnologia e dal desiderio di creare soluzioni che semplificano la vita delle persone e delle aziende.
+Per questo motivo, stiamo cercando un
+programmatore Python
+motivato, curioso e pronto a lavorare su progetti innovativi in ambito
+web, AI e sviluppo software custom
+.
+Se ami la programmazione, il lavoro in team e vuoi crescere professionalmente in un
+ambiente che valorizza la competenza e la creatività
+, BSDsoftware è il posto giusto per te.
+Invia il tuo curriculum
+Seleziona il profilo di interesse *
+Front-end Angular
+Software Development Specialist
+Senior .Net Developer
+Python Developer
+PHP Developer
+UX/UI Designer
+Sviluppatore PL/SQL
+Allega il tuo Curriculum *
+Si accettano le condizioni della
+privacy
+.
+* Campi obbligatori
+Invia
+Il profilo che stiamo cercando
+Cerchiamo uno
+sviluppatore Python
+con una solida conoscenza dei principi di programmazione e una forte propensione alla risoluzione dei problemi.
+Ti occuperai di progettare, sviluppare e mantenere
+applicazioni web e gestionali
+in collaborazione con un team di professionisti esperti, contribuendo attivamente al ciclo di vita del software: analisi, sviluppo, testing e deploy.
+Sarai coinvolto in progetti di
+intelligenza artificiale, integrazione API e sviluppo full-stack
+, con l’opportunità di sperimentare nuove tecnologie e proporre soluzioni innovative.
+Competenze richieste
+Per ricoprire il ruolo di
+Python Developer
+, cerchiamo candidati con:
+Ottima conoscenza del linguaggio
+Python
+(versioni 3.x)
+Buona padronanza di
+React
+per lo sviluppo front-end
+Esperienza con
+Docker
+per la containerizzazione e gestione degli ambienti di sviluppo
+Esperienza con
+framework web
+o microservizi (es. FastAPI, Django, Flask)
+Attitudine al lavoro in team e alla collaborazione su progetti condivisi (Git, GitHub, GitLab)
+Costituiscono titolo preferenziale:
+Esperienza in progetti AI o Data Science
+Conoscenza base di DevOps o CI/CD
+Interesse per ambienti Cloud (AWS, Azure, GCP)
+Sedi di lavoro
+BSDsoftware ha sede principale a Cesena (FC), ma siamo aperti anche a modalità di lavoro
+ibrida o completamente in smart working
+.
+L’ambiente di lavoro è dinamico, orientato alla crescita e alla formazione continua, con la possibilità di confrontarti con colleghi esperti in
+sviluppo software, digital strategy e AI
+.
+Contratto di lavoro
+Offriamo un contratto commisurato all’esperienza, con concrete possibilità di crescita professionale e partecipazione a progetti di respiro nazionale e internazionale.
+BSDsoftware crede nel
+valore delle persone
+e nella
+formazione continua
+investiamo nel talento per costruire insieme soluzioni tecnologiche sempre più evolute.
+Benefit offerti
+Formazione continua:
+accesso a corsi di aggiornamento su tecnologie innovative e metodologie di sviluppo.
+Buoni pasto e strumenti di lavoro:
+inclusi laptop e software professionali.
+Ambiente di lavoro stimolante:
+progetti per clienti nazionali e internazionali in diversi settori.
+Flessibilità lavorativa:
+possibilità di modulare orari e modalità di lavoro.
+Perché lavorare in BSDsoftware
+Quali opportunità di crescita offre BSDsoftware?
+In BSDsoftware, ogni sviluppatore ha l'opportunità di crescere professionalmente grazie a progetti innovativi che spaziano tra sviluppo applicazioni web, e-commerce e soluzioni customizzate. Crediamo nell'investimento sulle persone e organizziamo regolarmente corsi di formazione per mantenere il nostro team al passo con le ultime tecnologie.
+Lavorare in smart working è davvero efficace?
+Assolutamente sì. Grazie a una gestione dei progetti ben strutturata, il lavoro in smart working è produttivo e flessibile. La possibilità di alternare giornate in presenza e da remoto garantisce autonomia e supporto, creando un equilibrio ideale tra lavoro e vita privata.
+BSDsoftware promuove il lavoro in team?
+Certamente. Pur offrendo la possibilità di lavorare da remoto, incoraggiamo il confronto e la collaborazione attraverso strumenti digitali e incontri periodici in sede. Questo favorisce lo scambio di idee e la crescita professionale.
+Come viene valorizzata l'esperienza lavorativa?
+Oltre ai feedback continui, organizziamo colloqui individuali annuali per comprendere le esigenze dei nostri dipendenti e migliorare il nostro ambiente di lavoro. Questo approccio ci consente di offrire un'esperienza lavorativa soddisfacente e stimolante.
+Sei pronto a unirti al nostro team?
+Se stai cercando un
+lavoro come Python Developer
+che ti offra flessibilità, crescita e un ambiente di lavoro collaborativo, invia la tua candidatura spontanea oggi stesso.
+BSDsoftware è alla ricerca di talenti che vogliono fare la differenza nel mondo dello sviluppo software. Inizia o prosegui con noi la tua carriera nello sviluppo software e scopri quanto possa essere stimolante lavorare su progetti di alto livello.
+Inviaci il tuo CV per candidarti alle posizioni aperte come sviluppatore Python!
+Invia il tuo curriculum
+Seleziona il profilo di interesse *
+Front-end Angular
+Software Development Specialist
+Senior .Net Developer
+Python Developer
+PHP Developer
+UX/UI Designer
+Sviluppatore PL/SQL
+Allega il tuo Curriculum *
+Si accettano le condizioni della
+privacy
+.
+* Campi obbligatori
+Invia
+Posizioni principali:
+Python Developer full remote
+Python Developer Cesena
+Python Developer Milano
+Python Developer Forlì
+Python Developer Rimini
+Python Developer Riccione
+Python Developer Bologna
+Python Developer Roma
