@@ -57,6 +57,6 @@ Italiano madrelingua. Inglese tecnico (documentazione, codice, ticket). Ho soste
 - RAL desiderata: 25.000 € (dipendente, anche tempo determinato); P.IVA possibile.
 
 ## Link
-- Portfolio: https://portfolio-qa-8f6q.onrender.com
+- Portfolio: https://portfolio-loading.vercel.app/
 - GitHub: https://github.com/11292-stella
 - LinkedIn: https://www.linkedin.com/in/stella-marucelli
