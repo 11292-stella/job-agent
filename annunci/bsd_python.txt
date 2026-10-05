@@ -1,4 +1,5 @@
 Azienda: BSDsoftware (Cesena, Gruppo Maggioli)
+Posizione: Python Developer
 Pagina: https://www.bsdsoftware.it/LavoraConNoi
 Come candidarsi: modulo sul sito (Nome e Cognome, E-mail, Telefono, Profilo di interesse, Messaggio, CV). Email alternativa: info@bsdsoftware.it
 

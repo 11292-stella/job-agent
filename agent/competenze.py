@@ -81,7 +81,7 @@ COMPETENZE: list[Competenza] = [
     Competenza("SAP", ("SAP",), False, maiuscole=True),
     Competenza("Laurea", ("laurea", "laureato", "laureata", "degree"), False),
     Competenza("Certificazione ISTQB", ("ISTQB",), False),
-    Competenza("Progetti di intelligenza artificiale", ("intelligenza artificiale", "machine learning", "deep learning"), False),
+    Competenza("Progetti di intelligenza artificiale", ("intelligenza artificiale", "machine learning", "deep learning", "progetti AI", "progetti di AI", "esperienza con l'AI", "esperienza AI"), False),
     Competenza("Data Science", ("data science", "data scientist"), False),
 ]
 

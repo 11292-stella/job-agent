@@ -16,6 +16,10 @@ FRASI_VIETATE = [
     "al passo con",
     "disponibile al trasferimento",  # la scrive già lo scheletro: l'AI non deve ripeterla
     "disponibile da subito",
+    "esperta",
+    "elenco",                    # prompt leak: "come nel mio elenco ESPERIENZE"
+    "mi rende particolarmente",
+    "come candidata",
 ]
 
 

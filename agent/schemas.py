@@ -36,3 +36,15 @@ class Valutazione(BaseModel):
     note_per_me: str = Field(
         description="Note utili per me: sede, modalità di lavoro, cose da verificare"
     )
+
+
+
+class Paragrafi(BaseModel):
+    """Le uniche due parti della mail che scrive l'AI."""
+
+    esperienza: str = Field(
+        description="2-4 frasi che collegano l'annuncio alle esperienze vere dell'elenco"
+    )
+    azienda: str = Field(
+        description="1-2 frasi su cosa interessa dell'azienda, con un dettaglio vero preso dall'annuncio"
+    )
