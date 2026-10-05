@@ -10,6 +10,7 @@ import sys
 import time
 from pathlib import Path
 from typing import Literal
+import argparse
 
 import ollama
 from pydantic import BaseModel, Field, create_model
@@ -164,15 +165,17 @@ def valuta(annuncio: str, modello: str = MODELLO) -> tuple[Valutazione, list[str
 
 
 if __name__ == "__main__":
-    if len(sys.argv) not in (2, 3):
-        print("Uso: python -m agent.brain <file_annuncio.txt> [modello]")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Valuta un annuncio e prepara la mail di candidatura.")
+    parser.add_argument("annuncio", help="file .txt dell'annuncio (es. annunci\\bsdsoftware_python.txt)")
+    parser.add_argument("modello", nargs="?", default=MODELLO, help=f"modello Ollama (default {MODELLO})")
+    parser.add_argument("--bozza", action="store_true",
+                        help="alla fine chiede se creare la bozza in Gmail con il CV allegato")
+    args = parser.parse_args()
 
-    testo_annuncio = Path(sys.argv[1]).read_text(encoding="utf-8-sig")
-    modello = sys.argv[2] if len(sys.argv) == 3 else MODELLO
+    testo_annuncio = Path(args.annuncio).read_text(encoding="utf-8-sig")
 
     inizio = time.time()
-    v, avvisi = valuta(testo_annuncio, modello=modello)
+    v, avvisi = valuta(testo_annuncio, modello=args.modello)
 
     print(f"🏢 {v.azienda} – {v.posizione}")
     print(f"📊 Punteggio: {v.punteggio}/100   📨 Canale: {v.canale}   ✉ {v.email_candidatura or '-'}")
@@ -183,3 +186,23 @@ if __name__ == "__main__":
     for a in avvisi:
         print(f"\n🔁 {a}")
     print(f"\n⏱  Tempo: {time.time() - inizio:.1f} secondi")
+
+    if args.bozza:
+        from agent.gmail_drafts import crea_bozza  # solo se serve: brain funziona anche senza Google
+
+        destinatario = v.email_candidatura if v.canale == "email" else None
+        if v.canale == "form":
+            print("\nℹ️  Canale: modulo sul sito → bozza SENZA destinatario (il testo ti serve per il modulo).")
+        elif not destinatario:
+            print("\nℹ️  Nessuna email trovata → bozza SENZA destinatario.")
+
+        risposta = input(f"\n📬 Creo la bozza in Gmail{' per ' + destinatario if destinatario else ''}? (s/n) ")
+        if risposta.strip().lower() == "s":
+            try:
+                id_bozza = crea_bozza(destinatario, v.oggetto_email, v.testo)
+            except FileNotFoundError as errore:
+                print(f"❌ {errore}")
+                sys.exit(1)
+            print(f"✅ Bozza creata (id {id_bozza}) → https://mail.google.com/mail/#drafts")
+        else:
+            print("👍 Nessuna bozza creata.")
