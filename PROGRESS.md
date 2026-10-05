@@ -46,7 +46,14 @@ L'obiettivo è **automatizzare i punti 1-5**, tenendo per me solo il controllo f
 ## 3. Architettura (attuale)
 
 ```
-ANNUNCIO (file .txt con righe "Azienda:" e "Posizione:" in cima)
+URL della pagina (+ nome dell'offerta, se la pagina ne ha più di una)
+   │
+   ▼
+[Python] fetcher.py    → scarica, trova email e modulo, prende solo l'offerta scelta,
+                         segue la pagina di dettaglio, pulisce il testo
+   │
+   ▼
+ANNUNCIO (file .txt in annunci/ con righe "Azienda:", "Posizione:", "Come candidarsi:" in cima)
    │
    ▼
 [Python] competenze.py → punti forti / cosa manca / punteggio      (deterministico, zero allucinazioni)
@@ -108,7 +115,7 @@ def schema_scelta(nomi: list[str]) -> type[BaseModel]:
 | Modello AI | Ollama + **qwen2.5:3b** | 🆕 imparato in questo progetto |
 | Validazione JSON | Pydantic (`BaseModel`, `Field`, `create_model`, `Literal`) | 🆕 imparato in questo progetto |
 | Riconoscimento competenze | `re` (regex a parola intera) + `dataclass` | ✅ |
-| Lettura pagine web | requests + BeautifulSoup | ✅ (Job Aggregator) |
+| Lettura pagine web | requests + BeautifulSoup (`urljoin`, `find_all_next`, `dataclass`) | ✅ (Job Aggregator) |
 | Moduli web | Playwright (Python) | ✅ (Sellogic) |
 | Bozze email | Gmail API | ✅ (Job Aggregator) |
 | Database | SQLite all'inizio, poi PostgreSQL | ✅ |
@@ -123,27 +130,34 @@ def schema_scelta(nomi: list[str]) -> type[BaseModel]:
 ```
 job-agent/
 ├── PROGRESS.md
-├── requirements.txt         # ollama, pydantic (salvato in UTF-8!)
+├── requirements.txt         # ollama, pydantic, requests, beautifulsoup4 (salvato in UTF-8!)
 ├── .gitignore
 ├── data/
 │   ├── profilo.md           # il mio profilo, con la sezione "Cosa NON ho"
 │   └── regole_stile.md      # tono umile, niente frasi fatte, struttura della mail
 ├── annunci/
-│   └── bsd_python.txt       # annuncio di prova
+│   ├── bsd_python.txt       # annuncio copiato a mano (prima prova)
+│   └── bsdsoftware_python.txt  # creato dal fetcher
 ├── agent/
 │   ├── __init__.py
 │   ├── schemas.py           # Valutazione (output finale)
 │   ├── competenze.py        # dizionario competenze (le ho / non le ho) + regex
 │   ├── frasi.py             # le MIE frasi, una per competenza
 │   ├── controlli.py         # frasi vietate, tecnologie inventate, lunghezza
+│   ├── fetcher.py           # da URL a file annuncio (email, modulo, offerta, dettaglio)
 │   └── brain.py             # orchestrazione: Python + AI + controlli + scheletro mail
 └── tests/                   # (fase 6)
 ```
 
-Comando:
+Comandi:
 ```powershell
-python -m agent.brain annunci\bsd_python.txt
+# 1. Dalla pagina al file annuncio (il nome dell'offerta è facoltativo)
+python -m agent.fetcher https://www.bsdsoftware.it/LavoraConNoi "Python"
+
+# 2. Dal file annuncio alla mail
+python -m agent.brain annunci\bsdsoftware_python.txt
 ```
+Se il nome dell'offerta non esiste, il fetcher elenca i titoli trovati nella pagina.
 
 ---
 
@@ -163,10 +177,13 @@ python -m agent.brain annunci\bsd_python.txt
 - [x] `agent/brain.py`: l'AI sceglie 3 competenze + scrive 1 frase, ciclo di correzione, scheletro mail
 - [x] Prova con un annuncio vero (BSDsoftware) → mail vera e umile in ~12 s
 
-### Fase 2 – Lettura delle pagine
-- [ ] `agent/fetcher.py`: da URL a testo pulito
-- [ ] Riconoscere email di candidatura e presenza di un modulo
-- [ ] Ricavare azienda e posizione senza scriverle a mano nel file
+### Fase 2 – Lettura delle pagine ✅
+- [x] `agent/fetcher.py`: da URL a testo pulito
+- [x] Riconoscere email di candidatura e presenza di un modulo (anche fuori da `<form>` o in iframe)
+- [x] Ricavare azienda e posizione dalla pagina (og:site_name, titolo dell'offerta)
+- [x] Pagine con più offerte: argomento "nome offerta" + link alla pagina di dettaglio seguito da solo
+- [x] Pulizia del titolo: "Python Developer (sia Remote che On-Site):" → "Python Developer"
+- [x] Prova completa fetcher → brain su BSDsoftware: punteggio 65, mancanze vere (FastAPI, Flask, Cloud, AI), mail umile
 
 ### Fase 3 – Esecutore
 - [ ] `agent/gmail_drafts.py`: bozza Gmail con CV allegato
@@ -211,6 +228,9 @@ python -m agent.brain annunci\bsd_python.txt
 | 05/10/2026 | `controlli.py` | Falso negativo: "sono conosciuta" non trovava "sono anche conosciuta" → controllo su "conosciuta per" |
 | 05/10/2026 | Scheletro mail + ciclo di correzione + esempio few-shot | Il 3b continuava a scrivere "esperta" anche dopo 3 correzioni → limite del modello |
 | 05/10/2026 | `frasi.py` + l'AI sceglie solo da lista chiusa | Mail vera e umile in ~12 s; il ciclo di correzione ha bloccato "innovativo" al 1° tentativo |
+| 05/10/2026 | `fetcher.py` (prima versione) | "Modulo: no" anche se il modulo c'era: i campi non erano dentro `<form>` → controllo su tutta la pagina, iframe e frasi tipiche |
+| 05/10/2026 | `fetcher.py` e pagine con più offerte | La pagina "Lavora con noi" aveva 7 offerte → punteggio sporcato da Java/C#/PHP e l'AI ha scelto Java per un annuncio Python. Risolto con la scelta dell'offerta (titoli h2-h4) |
+| 05/10/2026 | `fetcher.py` e pagina di dettaglio | Con il solo riassunto (157 caratteri) → **falso 100/100**. Ora il fetcher segue il link al dettaglio: punteggio 65 e mancanze vere. Test negativo con offerta inesistente → elenca i titoli |
 
 ---
 
@@ -218,6 +238,9 @@ python -m agent.brain annunci\bsd_python.txt
 
 - [ ] Priorità tra le competenze (es. per un annuncio Python, Django prima di Docker)
 - [ ] Evitare frasi che ripetono lo stesso dato (es. "226 test API" in Python e Playwright)
+- [ ] Fetcher: escludere dalla pagina di dettaglio l'elenco delle "altre posizioni aperte" (oggi aggiunge ASP.NET Core, Angular, PHP al confronto)
+- [ ] Fetcher: pagine generate da JavaScript → leggerle con Playwright
+- [ ] Un solo comando URL → mail (lo farà `main.py` nella fase 4)
 - [ ] Aggiornare profilo, CV e portfolio con questo progetto quando sarà finito
 
 ---
@@ -227,4 +250,5 @@ python -m agent.brain annunci\bsd_python.txt
 - Ho usato un modello AI **piccolo e locale** e ne ho scoperto i limiti facendo QA sui suoi output.
 - Ho **spostato la logica critica in Python** (confronto competenze) e lasciato all'AI solo i compiti in cui è affidabile.
 - Ho costruito **controlli automatici** e un **ciclo di correzione**, e testandoli ho trovato un falso negativo.
+- Nel fetcher ho trovato un **falso 100/100**: il programma leggeva solo il riassunto dell'offerta. Un numero "troppo bello" è un segnale da indagare, non un successo.
 - Risultato: mail **vere, umili e verificabili**, l'invio resta sempre una decisione umana.
