@@ -1,0 +1,41 @@
+Azienda: BSDsoftware (Cesena, Gruppo Maggioli)
+Pagina: https://www.bsdsoftware.it/LavoraConNoi
+Come candidarsi: modulo sul sito (Nome e Cognome, E-mail, Telefono, Profilo di interesse, Messaggio, CV). Email alternativa: info@bsdsoftware.it
+
+In BSDsoftware crediamo che la qualità del codice nasca dalla passione per la tecnologia e dal desiderio di creare soluzioni che semplificano la vita delle persone e delle aziende.
+
+Per questo motivo, stiamo cercando un programmatore Python motivato, curioso e pronto a lavorare su progetti innovativi in ambito web, AI e sviluppo software custom.
+
+Se ami la programmazione, il lavoro in team e vuoi crescere professionalmente in un ambiente che valorizza la competenza e la creatività, BSDsoftware è il posto giusto per te.
+
+Il profilo che stiamo cercando
+Cerchiamo uno sviluppatore Python con una solida conoscenza dei principi di programmazione e una forte propensione alla risoluzione dei problemi.
+
+Ti occuperai di progettare, sviluppare e mantenere applicazioni web e gestionali in collaborazione con un team di professionisti esperti, contribuendo attivamente al ciclo di vita del software: analisi, sviluppo, testing e deploy.
+
+Sarai coinvolto in progetti di intelligenza artificiale, integrazione API e sviluppo full-stack, con l'opportunità di sperimentare nuove tecnologie e proporre soluzioni innovative.
+
+Competenze richieste
+Per ricoprire il ruolo di Python Developer, cerchiamo candidati con:
+- Ottima conoscenza del linguaggio Python (versioni 3.x)
+- Buona padronanza di React per lo sviluppo front-end
+- Esperienza con Docker per la containerizzazione e gestione degli ambienti di sviluppo
+- Esperienza con framework web o microservizi (es. FastAPI, Django, Flask)
+- Attitudine al lavoro in team e alla collaborazione su progetti condivisi (Git, GitHub, GitLab)
+
+Costituiscono titolo preferenziale:
+- Esperienza in progetti AI o Data Science
+- Conoscenza base di DevOps o CI/CD
+- Interesse per ambienti Cloud (AWS, Azure, GCP)
+
+Sedi di lavoro
+BSDsoftware ha sede principale a Cesena (FC), ma siamo aperti anche a modalità di lavoro ibrida o completamente in smart working.
+
+Contratto di lavoro
+Offriamo un contratto commisurato all'esperienza, con concrete possibilità di crescita professionale e partecipazione a progetti di respiro nazionale e internazionale.
+
+Benefit offerti
+- Formazione continua: accesso a corsi di aggiornamento su tecnologie innovative e metodologie di sviluppo.
+- Buoni pasto e strumenti di lavoro: inclusi laptop e software professionali.
+- Ambiente di lavoro stimolante: progetti per clienti nazionali e internazionali in diversi settori.
+- Flessibilità lavorativa: possibilità di modulare orari e modalità di lavoro.
