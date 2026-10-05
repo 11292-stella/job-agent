@@ -1,23 +1,28 @@
 """Il "cervello" dell'agente.
 
-- Python  → competenze, punteggio, canale, email, oggetto e SCHELETRO della mail
-- AI      → scrive SOLO due paragrafi (esperienza + perché l'azienda)
-- Python  → controlla i paragrafi; se ci sono problemi li rimanda all'AI da correggere
+- Python → competenze, punteggio, canale, email, oggetto, scheletro della mail
+- AI     → 1) SCEGLIE le 3 competenze più rilevanti (solo da una lista chiusa)
+           2) scrive UNA frase sull'azienda (controllata, con ciclo di correzione)
+- Python → monta il paragrafo con le MIE frasi (agent/frasi.py)
 """
 import re
 import sys
 import time
 from pathlib import Path
+from typing import Literal
 
 import ollama
+from pydantic import BaseModel, Field, create_model
 
 from agent.competenze import confronta
 from agent.controlli import FRASI_VIETATE, controlla
-from agent.schemas import Paragrafi, Valutazione
+from agent.frasi import FRASI
+from agent.schemas import Valutazione
 
 MODELLO = "qwen2.5:3b"
 MAX_TENTATIVI = 3
 PORTFOLIO = "https://portfolio-loading.vercel.app/"
+FRASE_AZIENDA_RISERVA = "Mi piacerebbe molto entrare nel vostro team e crescere insieme a voi."
 
 SCHELETRO = """Buongiorno,
 
@@ -33,24 +38,17 @@ Stella Marucelli
 +39 378 066 2596
 stella.marucelli@gmail.com"""
 
-ISTRUZIONI = f"""Scrivi in ITALIANO due paragrafi per l'email di candidatura di Stella (prima persona, al femminile).
+ISTRUZIONI = f"""Aiuti Stella a preparare una candidatura. Ricevi un ANNUNCIO e la lista delle sue COMPETENZE.
 
-- "esperienza": 2-4 frasi. Collega l'annuncio alle esperienze dell'elenco ESPERIENZE.
-  Cita SOLO quelle esperienze, con i dettagli esattamente come sono scritti. Non aggiungere numeri, progetti o tecnologie.
-- "azienda": 1-2 frasi su cosa ti interessa di questa azienda, usando UN dettaglio vero preso dall'annuncio.
+1. "competenze": scegli dalla lista le 3 competenze più importanti per questo annuncio, dalla più importante.
+2. "frase_azienda": scrivi in ITALIANO UNA sola frase, in prima persona al femminile, su cosa le interessa di
+   questa azienda, usando UN dettaglio concreto preso dall'annuncio (es. la modalità di lavoro, il tipo di progetti).
 
-ESEMPIO di stile (per un'altra azienda: copia il TONO, non il contenuto):
-- esperienza: "In Sellogic ho lavorato con GitLab CI e Jira, prima come sviluppatrice e poi come QA Automation Engineer, e con Playwright e pytest ho scritto 226 test API. Ho una formazione Java con Spring Boot e JPA, e ho sviluppato da sola un'applicazione con API REST e frontend Angular."
-- azienda: "Mi interessa lavorare sulla manutenzione e sull'evoluzione di applicazioni web, e il fatto che la posizione sia completamente da remoto."
-
-Nota: in Sellogic i test li SCRIVEVO (QA), non sviluppavo le applicazioni. Non dire mai "esperta".
-
-Non scrivere saluti, disponibilità, link, firma.
-Tono semplice, concreto e umile. Non usare mai queste espressioni: {", ".join(FRASI_VIETATE)}."""
+Esempio di frase_azienda: "Mi interessa lavorare su applicazioni web e gestionali, e il fatto che siate aperti allo smart working."
+Tono semplice e umile. Non usare mai: {", ".join(FRASI_VIETATE)}."""
 
 
 def leggi_campo(annuncio: str, campo: str) -> str | None:
-    """Legge una riga tipo 'Azienda: BSDsoftware' in cima al file dell'annuncio."""
     trovato = re.search(rf"^{campo}:\s*(.+)$", annuncio, re.MULTILINE | re.IGNORECASE)
     return trovato.group(1).strip() if trovato else None
 
@@ -60,43 +58,55 @@ def trova_email(annuncio: str) -> str | None:
     return trovata.group(0) if trovata else None
 
 
-def scrivi_paragrafi(annuncio: str, esperienze: str, modello: str) -> tuple[Paragrafi, list[str]]:
-    """Chiede all'AI i due paragrafi e li fa correggere finché passano i controlli."""
+def schema_scelta(nomi: list[str]) -> type[BaseModel]:
+    """Crea al volo uno schema in cui 'competenze' può contenere SOLO i nomi della lista."""
+    NomeCompetenza = Literal[tuple(nomi)]  # es. Literal["Python", "Django", "Docker"]
+    return create_model(
+        "Scelta",
+        competenze=(list[NomeCompetenza], Field(min_length=1, max_length=3)),
+        frase_azienda=(str, Field(description="Una frase su cosa interessa dell'azienda")),
+    )
+
+
+def scegli_e_scrivi(annuncio: str, candidate: list[str], modello: str) -> tuple[list[str], str, list[str]]:
+    """L'AI sceglie le competenze e scrive la frase sull'azienda. Restituisce (scelte, frase, avvisi)."""
+    Scelta = schema_scelta(candidate)
     avvisi: list[str] = []
     messaggi = [
         {"role": "system", "content": ISTRUZIONI},
-        {"role": "user", "content": f"=== ESPERIENZE ===\n{esperienze}\n\n=== ANNUNCIO ===\n{annuncio}"},
+        {"role": "user", "content": "=== COMPETENZE ===\n- " + "\n- ".join(candidate)
+                                    + f"\n\n=== ANNUNCIO ===\n{annuncio}"},
     ]
-    paragrafi = Paragrafi(esperienza="", azienda="")
+    scelte = candidate[:3]
 
     for tentativo in range(1, MAX_TENTATIVI + 1):
         risposta = ollama.chat(
             model=modello,
             messages=messaggi,
-            format=Paragrafi.model_json_schema(),
-            options={"temperature": 0.4, "num_ctx": 4096, "num_predict": 500},
+            format=Scelta.model_json_schema(),
+            options={"temperature": 0.3, "num_ctx": 4096, "num_predict": 300},
         )
         contenuto = risposta.message.content
-        paragrafi = Paragrafi.model_validate_json(contenuto)
+        risultato = Scelta.model_validate_json(contenuto)
+        scelte = list(dict.fromkeys(risultato.competenze))  # toglie eventuali doppioni
 
-        problemi = (
-            controlla(paragrafi.esperienza, min_parole=25, max_parole=110)
-            + controlla(paragrafi.azienda, min_parole=10, max_parole=70)
-        )
+        problemi = controlla(risultato.frase_azienda, min_parole=8, max_parole=45)
         if not problemi:
-            return paragrafi, avvisi
+            return scelte, risultato.frase_azienda.strip(), avvisi
 
         avvisi.append(f"Tentativo {tentativo}: " + " | ".join(problemi))
-        # Ciclo di correzione: rimandiamo all'AI la sua risposta + gli errori trovati
         messaggi.append({"role": "assistant", "content": contenuto})
-        messaggi.append({
-            "role": "user",
-            "content": "Il testo ha questi problemi:\n- " + "\n- ".join(problemi)
-                       + "\nRiscrivi i due paragrafi correggendoli.",
-        })
+        messaggi.append({"role": "user", "content": "La frase_azienda ha questi problemi:\n- "
+                         + "\n- ".join(problemi) + "\nRiscrivila correggendoli."})
 
-    avvisi.append("⚠ Dopo 3 tentativi ci sono ancora problemi: controlla e correggi a mano!")
-    return paragrafi, avvisi
+    avvisi.append("Frase sull'azienda non valida dopo 3 tentativi: uso la frase di riserva.")
+    return scelte, FRASE_AZIENDA_RISERVA, avvisi
+
+
+def componi_paragrafo(scelte: list[str]) -> str:
+    """Unisce le MIE frasi: ognuna diventa una frase con la maiuscola e il punto."""
+    frasi = [FRASI[nome] for nome in scelte if nome in FRASI]
+    return " ".join(f[0].upper() + f[1:] + "." for f in frasi)
 
 
 def valuta(annuncio: str, modello: str = MODELLO) -> tuple[Valutazione, list[str]]:
@@ -109,12 +119,7 @@ def valuta(annuncio: str, modello: str = MODELLO) -> tuple[Valutazione, list[str
     azienda = leggi_campo(annuncio, "Azienda") or "Azienda sconosciuta"
     posizione = leggi_campo(annuncio, "Posizione") or "Candidatura spontanea"
     email = trova_email(annuncio)
-    if "modulo" in annuncio.lower():
-        canale = "form"
-    elif email:
-        canale = "email"
-    else:
-        canale = "sconosciuto"
+    canale = "form" if "modulo" in annuncio.lower() else ("email" if email else "sconosciuto")
 
     if posizione == "Candidatura spontanea":
         oggetto = "Candidatura spontanea – QA Automation Engineer / Full Stack Developer – Stella Marucelli"
@@ -123,15 +128,23 @@ def valuta(annuncio: str, modello: str = MODELLO) -> tuple[Valutazione, list[str
         oggetto = f"Candidatura – {posizione} – Stella Marucelli"
         apertura = f"vi scrivo per candidarmi alla posizione di {posizione}."
 
-    # 3) AI: solo i due paragrafi (con ciclo di correzione)
-    esperienze = "\n".join(f"- {c.nome}: {c.dove}" for c in forti)
-    paragrafi, avvisi = scrivi_paragrafi(annuncio, esperienze, modello)
+    # 3) AI: sceglie solo tra le competenze che HO e per cui ho scritto una frase
+    candidate = [c.nome for c in forti if c.nome in FRASI]
+    avvisi: list[str] = []
+    if len(candidate) > 3:
+        scelte, frase_azienda, avvisi = scegli_e_scrivi(annuncio, candidate, modello)
+    elif candidate:
+        scelte = candidate
+        _, frase_azienda, avvisi = scegli_e_scrivi(annuncio, candidate, modello)
+    else:
+        scelte, frase_azienda = [], FRASE_AZIENDA_RISERVA
+        avvisi.append("Nessuna competenza con frase trovata: completa il paragrafo a mano.")
 
-    # 4) Python: monta lo scheletro
+    # 4) Python: monta la mail
     testo = SCHELETRO.format(
         apertura=apertura,
-        esperienza=paragrafi.esperienza.strip(),
-        azienda=paragrafi.azienda.strip(),
+        esperienza=componi_paragrafo(scelte),
+        azienda=frase_azienda,
         portfolio=PORTFOLIO,
     )
 
@@ -151,7 +164,6 @@ def valuta(annuncio: str, modello: str = MODELLO) -> tuple[Valutazione, list[str
 
 
 if __name__ == "__main__":
-    # Uso: python -m agent.brain annunci\file.txt [modello]
     if len(sys.argv) not in (2, 3):
         print("Uso: python -m agent.brain <file_annuncio.txt> [modello]")
         sys.exit(1)
